@@ -5,11 +5,15 @@ import data from "./data.json";
 import { render } from "@testing-library/react";
 import Products from "./components/Products";
 import Filter from "./components/Filter";
+import Cart from "./components/Cart";
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
       products: data.products,
+      cartItems: localStorage.getItem("cartItem")
+        ? JSON.parse(localStorage.getItem("cartItem"))
+        : [],
       size: "",
       sort: "",
     };
@@ -53,6 +57,38 @@ class App extends React.Component {
     }
   };
 
+  addToCart = (product) => {
+    const cartItems = this.state.cartItems.slice(); //clone
+    let alreadyInCart = false;
+    cartItems.forEach((item) => {
+      if (item._id === product._id) {
+        item.count++;
+        alreadyInCart = true;
+      }
+    });
+
+    if (!alreadyInCart) {
+      cartItems.push({ ...product, count: 1 });
+    }
+
+    this.setState({
+      cartItems,
+    });
+    localStorage.setItem("cartItem", JSON.stringify(cartItems));
+  };
+
+  removeFromCart = (product) => {
+    const cartItems = this.state.cartItems.slice(); //clone
+    this.setState({
+      cartItems: cartItems.filter((x) => x._id !== product._id),
+    });
+
+    localStorage.setItem(
+      "cartItem",
+      JSON.stringify(cartItems.filter((x) => x._id !== product._id))
+    );
+  };
+
   render() {
     return (
       <div className="grid-container">
@@ -69,9 +105,17 @@ class App extends React.Component {
                 filterProducts={this.filterProducts}
                 sortProducts={this.sortProducts}
               ></Filter>
-              <Products products={this.state.products}></Products>
+              <Products
+                products={this.state.products}
+                addToCart={this.addToCart}
+              ></Products>
             </div>
-            <div className="sidebar">Cart</div>
+            <div className="sidebar">
+              <Cart
+                cartItems={this.state.cartItems}
+                removeFromCart={this.removeFromCart}
+              ></Cart>
+            </div>
           </div>
         </main>
         <footer>All rights are reserved</footer>
