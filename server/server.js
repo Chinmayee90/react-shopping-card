@@ -35,12 +35,12 @@ app.post("/api/products", async (req, res) => {
   res.send(savedProduct);
 });
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log("server at http://localhost:5000");
-});
-
 app.delete("/api/products/:id", async (req, res) => {
   const deletedProduct = await Product.findByIdAndDelete(req.params.id);
   res.send(deletedProduct);
+});
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log("server at http://localhost:5000");
 });
